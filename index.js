@@ -4,11 +4,8 @@
  * -> A function that deletes all child elements from a parent element in the DOM
  */
 
-// import the JSON data about the crowd funded games from the games.js file
 import GAMES_DATA from "./games.js";
-
 const GAMES_JSON = JSON.parse(GAMES_DATA);
-
 function deleteChildElements(parent) {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
@@ -19,24 +16,44 @@ function deleteChildElements(parent) {
  * Challenge 3: Add data about each game as a card to the games-container
  * Skills used: DOM manipulation, for loops, template literals, functions
  */
-
-// grab the element with the id games-container
 const gamesContainer = document.getElementById("games-container");
+
+// function to add games to the page
 function addGamesToPage(games) {
-  // loop over each item in the data
-  for (let game of games) {
-    const gameCard = document.createElement("div");
-    gameCard.classList.add("game-card");
-    gameCard.innerHTML = `
-            <img src="${game.img}" alt="${game.name}" class="game-img" />
-            <h3>${game.name}</h3>
-            <p>${game.description}</p>
-            <p>Backers: ${game.backers.toLocaleString()}</p>
-        `;
-    gamesContainer.appendChild(gameCard);
+  gamesContainer.innerHTML = "";
+  if (games.length === 0) {
+    const noGameMessage = document.createElement("p");
+    noGameMessage.textContent =
+      " ☹️ Sorry, we don't have that game in our database yet.";
+    noGameMessage.classList.add("no-game-message");
+    gamesContainer.appendChild(noGameMessage);
+  } else {
+    games.forEach((game) => {
+      const gameCard = document.createElement("div");
+      gameCard.classList.add("game-card");
+      gameCard.innerHTML = `
+        <img src="${game.img}" alt="${game.name}" class="game-img" />
+        <h3>${game.name}</h3>
+        <p>${game.description}</p>
+        <p>Backers: ${game.backers.toLocaleString()}</p>
+      `;
+      gamesContainer.appendChild(gameCard);
+    });
   }
 }
 addGamesToPage(GAMES_JSON);
+
+// Search functionality
+document
+  .getElementById("search-bar")
+  .addEventListener("input", function (event) {
+    const searchTerm = event.target.value.toLowerCase();
+    const filteredGames = GAMES_JSON.filter((game) =>
+      game.name.toLowerCase().includes(searchTerm)
+    );
+    deleteChildElements(gamesContainer);
+    addGamesToPage(filteredGames);
+  });
 
 /*************************************************************************************
  * Challenge 4: Create the summary statistics at the top of the page displaying the
